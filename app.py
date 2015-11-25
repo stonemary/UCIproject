@@ -65,9 +65,12 @@ def getData():
 		print "database [" + db_name + "] does not exist! session ending..."
 		sys.exit()
 
-	query = 'SELECT FROM Place WHERE lat BETWEEN {} AND {} AND lng BETWEEN {} AND {} AND cat_2 = "Food/Drinks"'
-
-	records = client.command(query.format(lat1, lat2, lng1, lng2))
+	#query = 'SELECT FROM Place WHERE lat BETWEEN {} AND {} AND lng BETWEEN {} AND {} AND cat_2 = "Food/Drinks"'
+	query = 'SELECT lat, lng, cat_2, title FROM Place WHERE cat_1 = "Outdoors"'
+	#possiblly suitable query format?
+	
+	#records = client.command(query.format(lat1, lat2, lng1, lng2))
+	records = client.command(query)
 
 	numListings = len(records)
 	print 'received ' + str(numListings) + ' records'
