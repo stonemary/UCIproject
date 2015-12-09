@@ -17,122 +17,118 @@ import numpy as np
 
 app = Flask(__name__)
 
-q = Queue()
+#q = Queue()
 
-def remap(value, min1, max1, min2, max2):
-	return float(min2) + (float(value) - float(min1)) * (float(max2) - float(min2)) / (float(max1) - float(min1))
+#def remap(value, min1, max1, min2, max2):
+	#return float(min2) + (float(value) - float(min1)) * (float(max2) - float(min2)) / (float(max1) - float(min1))
 
-def event_stream():
-    while True:
-        result = q.get()
-        yield 'data: %s\n\n' % str(result)
+#def event_stream():
+    #while True:
+        #result = q.get()
+        #yield 'data: %s\n\n' % str(result)
 
-@app.route('/eventSource/')
-def sse_source():
-    return Response(
-            event_stream(),
-            mimetype='text/event-stream')
+#@app.route('/eventSource/')
+#def sse_source():
+    #return Response(
+            #event_stream(),
+            #mimetype='text/event-stream')
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+#@app.route("/")
+#def index():
+    #return render_template("index.html")
 
-@app.route("/getData/")
-def getData():
+#@app.route("/getData/")
+#def getData():
 
-	q.put("starting data query...")
+	#q.put("starting data query...")
 
-	lat1 = str(request.args.get('lat1'))
-	lng1 = str(request.args.get('lng1'))
-	lat2 = str(request.args.get('lat2'))
-	lng2 = str(request.args.get('lng2'))
+	#lat1 = str(request.args.get('lat1'))
+	#lng1 = str(request.args.get('lng1'))
+	#lat2 = str(request.args.get('lat2'))
+	#lng2 = str(request.args.get('lng2'))
 
-	print "received coordinates: [" + lat1 + ", " + lat2 + "], [" + lng1 + ", " + lng2 + "]"
+	#print "received coordinates: [" + lat1 + ", " + lat2 + "], [" + lng1 + ", " + lng2 + "]"
 	
-	client = pyorient.OrientDB("localhost", 2480)
-	session_id = client.connect("admin", "admin")
-	db_name = "weibo"
-	db_username = "admin"
-	db_password = "admin"
+def filter_database():
+	
+    client = pyorient.OrientDB("localhost", 2480)
+    session_id = client.connect("admin", "admin")
+    db_name = "weibo"
+    db_username = "admin"
+    db_password = "admin"
 
-	if client.db_exists( db_name, pyorient.STORAGE_TYPE_MEMORY ):
+    if client.db_exists( db_name, pyorient.STORAGE_TYPE_MEMORY ):
 		client.db_open( db_name, db_username, db_password )
 		print db_name + " opened successfully"
-	else:
+    else:
 		print "database [" + db_name + "] does not exist! session ending..."
 		sys.exit()
 
-	query = 'SELECT FROM Place WHERE lat BETWEEN {22.92912} AND {22.927373} AND lng BETWEEN {114.014071} AND {114.016155}"'
-	#this was default to danil's code
+    query = 'SELECT FROM Checkin WHERE lat BETWEEN 22.961751 AND 22.929935 AND lng BETWEEN 113.693017 AND 113.639837 AND time BETWEEN "2014-09-03 03:00:00" and "2014-09-04 04:00:00"'
+	   #houjie area selection
 	
-	#query = 'SELECT lat, lng, cat_2, title FROM Place WHERE cat_1 = "Outdoors"'
-	#possiblly suitable query format?
-	
-	#records = client.command(query)
-	
-	#USE INFORMATION RECEIVED FROM CLIENT TO CONTROL	#HOW MANY RECORDS ARE CONSIDERED IN THE ANALYSIS
+    records = client.command(query)
+	#records = client.command(query.format(lat1, lat2, lng1, lng2))
+	   #this was default to danil's code
 
-	records = client.command(query.format(lat1, lat2, lng1, lng2))
-	#this was default to danil's code
+    numListings = len(records)
+    print 'received ' + str(numListings) + ' records'
 
-	numListings = len(records)
-	print 'received ' + str(numListings) + ' records'
+	#placesDict = {}
+	#scoreDict = {}
 
-	placesDict = {}
-	scoreDict = {}
+	#for place in records:
+		#placesDict[place._rid] = {'lat': place.lat, 'lng': place.lng}
+		#scoreDict[place._rid] = 0
 
-	for place in records:
-		placesDict[place._rid] = {'lat': place.lat, 'lng': place.lng}
-		scoreDict[place._rid] = 0
+	#for i, rid in enumerate(placesDict.keys()):
 
-	for i, rid in enumerate(placesDict.keys()):
+		#q.put('processing ' + str(i) + ' out of ' + str(numListings) + ' places...')
 
-		q.put('processing ' + str(i) + ' out of ' + str(numListings) + ' places...')
+		#s = "SELECT * FROM (TRAVERSE in(Checkin) FROM {}) WHERE @class = 'User'"
 
-		s = "SELECT * FROM (TRAVERSE in(Checkin) FROM {}) WHERE @class = 'User'"
+		#people = client.command(s.format(rid))
+		#uids = [person.uid for person in people]
 
-		people = client.command(s.format(rid))
-		uids = [person.uid for person in people]
+		#placesDict[rid]['users'] = set(uids)
 
-		placesDict[rid]['users'] = set(uids)
+	#q.put('matching records...')
 
-	q.put('matching records...')
+	#lines = []
 
-	lines = []
+	#for place1 in placesDict.keys():
+		#users1 = placesDict[place1]['users']
+		#lat1 = placesDict[place1]['lat']
+		#lng1 = placesDict[place1]['lng']
+		#placesDict.pop(place1)
+		#for place2 in placesDict.keys():
+			#if len(users1 & placesDict[place2]['users']) > 1:
+				#scoreDict[place1] += 1
+				#scoreDict[place2] += 1
+				#lines.append({'from': place1, 'to': place2, 'coordinates': [lat1, lng1, placesDict[place2]['lat'], placesDict[place2]['lng']]})
 
-	for place1 in placesDict.keys():
-		users1 = placesDict[place1]['users']
-		lat1 = placesDict[place1]['lat']
-		lng1 = placesDict[place1]['lng']
-		placesDict.pop(place1)
-		for place2 in placesDict.keys():
-			if len(users1 & placesDict[place2]['users']) > 1:
-				scoreDict[place1] += 1
-				scoreDict[place2] += 1
-				lines.append({'from': place1, 'to': place2, 'coordinates': [lat1, lng1, placesDict[place2]['lat'], placesDict[place2]['lng']]})
-
-	client.db_close()
+    client.db_close()
 
 
-	output = {"type":"FeatureCollection","features":[]}
+	#output = {"type":"FeatureCollection","features":[]}
 
-	for record in records:
-		if scoreDict[record._rid] < 1:
-			continue
-		feature = {"type":"Feature","properties":{},"geometry":{"type":"Point"}}
-		feature["id"] = record._rid
-		feature["properties"]["name"] = record.title
-		feature["properties"]["cat"] = record.cat_1
-		feature["properties"]["score"] = scoreDict[record._rid]
-		feature["geometry"]["coordinates"] = [record.lat, record.lng]
+	#for record in records:
+		#if scoreDict[record._rid] < 1:
+			#continue
+		#feature = {"type":"Feature","properties":{},"geometry":{"type":"Point"}}
+		#feature["id"] = record._rid
+		#feature["properties"]["name"] = record.title
+		#feature["properties"]["cat"] = record.cat_1
+		#feature["properties"]["score"] = scoreDict[record._rid]
+		#feature["geometry"]["coordinates"] = [record.lat, record.lng]
 
-		output["features"].append(feature)
+		#output["features"].append(feature)
 
 
-	output["lines"] = lines
+	#output["lines"] = lines
 
-	q.put('idle')
-	return json.dumps(output)
+	#q.put('idle')
+	#return json.dumps(output)
 
 
 if __name__ == "__main__":
