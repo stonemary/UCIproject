@@ -17,6 +17,7 @@ pip install -r requirements.txt
 3. start server
 ```bash
 cd UCIproject
-python app.py
+export SETTINGS_CONFIG=<path to your local config>
+python application.py
 ```
 4. go to `localhost:5000`
