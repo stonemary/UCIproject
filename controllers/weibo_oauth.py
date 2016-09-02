@@ -5,13 +5,13 @@ from urlparse import urljoin
 from urllib import urlencode
 from logging import getLogger
 
-import requests
+from controllers.common.request_service import CommonRequestService
 
 
 LOGGER = getLogger(__name__)
 
 
-class WeiboOauthClient(object):
+class WeiboOauthClient(CommonRequestService):
 
     def __init__(self, client_id=None, client_secret=None, redirect_url=None):
         self._client_id = client_id
@@ -35,12 +35,12 @@ class WeiboOauthClient(object):
         return self._redirect_url
 
     def get_oauth_url(self, redirect_url=None, response_type='code'):
-        if redirect_url is not None:
+        if redirect_url is None:
             redirect_url = self.redirect_url
         request_endpoint = 'oauth2/authorize'
 
         request_base_url = urljoin(self.base_url, request_endpoint)
-        query_string = urlencode({'client_id': self._client_id, 'redirect_url': redirect_url,
+        query_string = urlencode({'client_id': self._client_id, 'redirect_uri': redirect_url,
                                   'response_type': response_type})
         request_url = '{}?{}'.format(request_base_url, query_string)
         return request_url
@@ -53,10 +53,10 @@ class WeiboOauthClient(object):
         payload = {'client_id': self._client_id, 'client_secret': self._client_secret,
                    'grand_type': 'authorization_code', 'code': authorization_code, 'redirect_url': redirect_url}
 
-        response = requests.post(url=request_base_url, json=payload)
-        response_payload = response.json()
+        response_payload = super(WeiboOauthClient, self).json_request(request_url=request_base_url, method='POST',
+                                                                      json=payload)
+        # TODO error handling
         access_token = response_payload['access_token']
-
         LOGGER.info('access_token={} for authorization_code={}: {}'.format(access_token, authorization_code,
                                                                            response_payload))
         return access_token

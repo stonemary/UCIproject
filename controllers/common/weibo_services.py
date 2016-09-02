@@ -7,8 +7,8 @@ import urllib
 import urlparse
 from logging import getLogger
 
-import requests
 
+from controllers.common.request_service import CommonRequestService
 
 LOGGER = getLogger(__name__)
 
@@ -18,7 +18,7 @@ class WeiboCommonServiceState(Enum):
     batch = 1
 
 
-class WeiboCommonService(object):
+class WeiboCommonService(CommonRequestService):
     def __init__(self, access_tokens, mode=WeiboCommonServiceState.batch):
         self._access_tokens = set(access_tokens)
         if isinstance(mode, WeiboBatchUserService):
@@ -50,10 +50,7 @@ class WeiboCommonService(object):
             url_parameters['access_token'] = self.get_access_token()
         request_url = urlparse.urljoin(self.base_url, partial_url) + '?' + urllib.urlencode(url_parameters)
 
-        response = getattr(requests, method)(request_url, json=json)
-        response.raise_for_status()
-        response.raise_for_status()
-        return response.json()
+        return super(WeiboCommonService, self).json_request(request_url=request_url, method=method, json=json)
 
 
 class WeiboSingleUserService(WeiboCommonService):

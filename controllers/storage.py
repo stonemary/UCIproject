@@ -6,7 +6,7 @@ import os
 LOGGER = getLogger(__name__)
 
 
-class AccessTokenStorage(object):
+class StorageBase(object):
     def write(self, access_tokens):
         raise NotImplementedError()
 
@@ -20,7 +20,8 @@ class AccessTokenStorage(object):
         raise NotImplementedError()
 
 
-class FileStorage(AccessTokenStorage):
+# TODO use S3 instead
+class FileStorage(StorageBase):
     def __init__(self, file_name='access_token.json'):
         self._file_name = file_name
 
