@@ -38,5 +38,9 @@ pip install -r requirements.txt
 # 本地运行server
 cd UCIproject
 SETTINGS_CONFIG=.settings.conf python application.py 
+
+# 上面这个command的意思是: 让python 跑 application.py, 但是同时给python一个
+# environment variable, 叫SETTINGS_CONFIG, 这个variable的值是你config file
+# 的path
 ```
 4. go to `localhost:5000`
