@@ -2,7 +2,7 @@
 
 ## Get Started
 
-1. create a virtualenv for the python project
+- create a virtualenv for the python project
 ```bash
 # "<XXXX>" 表示, 在此处插入XXXX描述的内容
 
@@ -22,7 +22,7 @@ virtualenv UCIproject
 # 安装结束后, virtualenv "UCIproject"会自动被activate
 ```
 
-2. pip install the requirements file. 
+- pip install the requirements file. 
 ```bash
 # activate "UCIproject"这个virtualenv, 如果你已经activate, 就不用跑下面的
 # command
@@ -30,7 +30,8 @@ source </your/virtualenvs/folder>/UCIproject/bin/activate/
 # 在这个virtualenv里面, 安装所有依赖包
 pip install -r requirements.txt
 ```
-3. start server
+
+- start server
 ```bash
 # 你需要一个.settings.conf 文件在本地run application
 # 这个.settings.conf 文件应该位于 UCIproject/.settings.conf
@@ -43,4 +44,5 @@ SETTINGS_CONFIG=.settings.conf python application.py
 # environment variable, 叫SETTINGS_CONFIG, 这个variable的值是你config file
 # 的path
 ```
-4. go to `localhost:5000`
+
+- go to `localhost:5000`
